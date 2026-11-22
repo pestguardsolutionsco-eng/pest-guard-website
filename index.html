@@ -115,7 +115,7 @@ footer{background:#090e13;color:#c5cdd4;padding:28px 0;font-size:12px}.footer-ro
 <script>
 document.getElementById('year').textContent=new Date().getFullYear();
 document.querySelectorAll('.links a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.links').classList.remove('open')));
-const GOOGLE_APPS_SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzmud7toIO5ppwGxieYJaAKO4-RKcv1NMk8bWFzlOrDLA5mc2tkqWrHQ4GHwUVa_tL8w/exec";
 document.getElementById('inquiryForm').addEventListener('submit',async function(e){
  e.preventDefault();
  const form=this, status=document.getElementById('formStatus'), button=form.querySelector('button[type="submit"]');
