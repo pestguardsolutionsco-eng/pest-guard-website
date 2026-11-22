@@ -101,8 +101,8 @@ footer{background:#090e13;color:#c5cdd4;padding:28px 0;font-size:12px}.footer-ro
 <div class="contact-line"><strong>Service coverage</strong><span>Metro Manila and nearby areas</span></div>
 <div class="contact-line"><strong>Facebook</strong><a href="https://www.facebook.com/search/top?q=Pest%20Guard%20Solutions%20Co." target="_blank" rel="noopener">Pest Guard Solutions Co.</a></div>
 </div>
-<form class="contact-form" id="inquiryForm">
-<input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px"><h3>Request an inspection</h3><p>Share your details and our team will coordinate your inquiry.</p>
+<form class="contact-form" id="inquiryForm" method="POST" action="https://script.google.com/macros/s/AKfycbwzmud7toIO5ppwGxieYJaAKO4-RKcv1NMk8bWFzlOrDLA5mc2tkqWrHQ4GHwUVa_tL8w/exec" target="inquiryReceiver">
+<h3>Request an inspection</h3><p>Share your details and our team will coordinate your inquiry.</p>
 <div class="form-row"><div class="field"><label for="name">Full name *</label><input id="name" name="name" required placeholder="Your name"></div><div class="field"><label for="phone">Contact number *</label><input id="phone" name="phone" required placeholder="09XX XXX XXXX"></div></div>
 <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" placeholder="you@example.com"></div>
 <div class="form-row"><div class="field"><label for="property">Property type</label><select id="property" name="property"><option>Residential</option><option>Commercial</option><option>Industrial / Warehouse</option><option>School / Institution</option><option>Construction project</option><option>Other</option></select></div><div class="field"><label for="service">Service needed</label><select id="service" name="service"><option>Termite inspection / treatment</option><option>General pest control</option><option>Rodent control</option><option>Soil poisoning / pre-construction</option><option>Reticulation system</option><option>Integrated Pest Management</option><option>Not sure - need assessment</option></select></div></div>
@@ -112,31 +112,33 @@ footer{background:#090e13;color:#c5cdd4;padding:28px 0;font-size:12px}.footer-ro
 </form></div></div></section>
 </main>
 <footer><div class="container footer-row"><div class="footer-brand"><img src="assets/pest-guard-logo.jpg" alt="Pest Guard Solutions Co. official logo"><div><strong>PEST GUARD SOLUTIONS CO.</strong><br>Guarding Your Space, One Pest at a Time.</div></div><div>0977 121 5268 &nbsp; | &nbsp; pestguardsolutionsco@gmail.com</div><div class="footer-tag">RESIDENTIAL · COMMERCIAL · INDUSTRIAL</div><div>© <span id="year"></span> Pest Guard Solutions Co.</div></div></footer>
+<iframe name="inquiryReceiver" id="inquiryReceiver" title="Inquiry submission response" style="display:none;width:0;height:0;border:0" aria-hidden="true"></iframe>
 <script>
 document.getElementById('year').textContent=new Date().getFullYear();
 document.querySelectorAll('.links a').forEach(a=>a.addEventListener('click',()=>document.querySelector('.links').classList.remove('open')));
-const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzmud7toIO5ppwGxieYJaAKO4-RKcv1NMk8bWFzlOrDLA5mc2tkqWrHQ4GHwUVa_tL8w/exec";
-document.getElementById('inquiryForm').addEventListener('submit',async function(e){
- e.preventDefault();
- const form=this, status=document.getElementById('formStatus'), button=form.querySelector('button[type="submit"]');
- if (form.website && form.website.value) return;
- if (GOOGLE_APPS_SCRIPT_URL.indexOf("https://script.google.com/macros/s/") !== 0) {
-   status.textContent="The inquiry form is not connected yet. Please call 0977 121 5268 or email pestguardsolutionsco@gmail.com.";
-   return;
- }
- button.disabled=true; button.textContent="SENDING...";
- status.textContent="Sending your inquiry...";
- try {
-   const payload=new URLSearchParams();
-   new FormData(form).forEach((value,key)=>payload.append(key,value));
-   await fetch(GOOGLE_APPS_SCRIPT_URL,{method:"POST",mode:"no-cors",body:payload});
-   status.textContent="Thank you! Your inquiry has been sent. Our team will contact you soon.";
-   form.reset();
- } catch(err) {
-   status.textContent="We couldn't send your inquiry. Please call 0977 121 5268 or email pestguardsolutionsco@gmail.com.";
- } finally {
-   button.disabled=false; button.textContent="PREPARE MY INQUIRY  →";
- }
+const inquiryForm = document.getElementById('inquiryForm');
+const inquiryFrame = document.getElementById('inquiryReceiver');
+const inquiryStatus = document.getElementById('formStatus');
+const inquiryButton = inquiryForm.querySelector('button[type="submit"]');
+let inquiryPending = false;
+
+// Submit directly to the Apps Script Web App through a hidden iframe.
+// There is intentionally no hidden honeypot field: browser autofill can fill
+// hidden fields and silently block legitimate submissions.
+inquiryForm.addEventListener('submit', function(e) {
+  inquiryPending = true;
+  inquiryButton.disabled = true;
+  inquiryButton.textContent = 'SENDING...';
+  inquiryStatus.textContent = 'Submitting your inquiry securely... Please keep this page open.';
+});
+
+inquiryFrame.addEventListener('load', function() {
+  if (!inquiryPending) return; // Ignore the iframe's initial blank load.
+  inquiryPending = false;
+  inquiryStatus.textContent = 'Your inquiry form has been submitted. Pest Guard will contact you soon. For urgent assistance, call 0977 121 5268.';
+  inquiryForm.reset();
+  inquiryButton.disabled = false;
+  inquiryButton.textContent = 'PREPARE MY INQUIRY  →';
 });
 </script>
 </body></html>
